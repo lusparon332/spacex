@@ -12,6 +12,7 @@ function setup(){
         drawMap();
     })
 }
+
 function renderLaunches(launches, container){
     const list = document.createElement("ul");
     launches.forEach(launch=>{
@@ -36,6 +37,35 @@ function drawMap(){
         .scale(70)
         .center([0,20])
         .translate([width / 2 - margin.left, height / 2]);
+
+    const spaceX = new SpaceX();
+    spaceX.launchpads().then(data=>{
+        for (let i = 0; i < data.length; i++) {
+            coords = projection([data[i].longitude, data[i].latitude])
+            svg.append("circle")
+            .attr("cx", coords[0])
+            .attr("cy", coords[1])
+            .attr("r", 2)
+            .attr("fill", "blue");
+        }
+    })
+
+    /*item.addEventListener("mouseover", () => {
+        const spaceX = new SpaceX();
+        spaceX.launchpad(launch.launchpad).then(data=>{
+            coords = projection([data.longitude, data.latitude])
+            svg.append("circle")
+            .attr("cx", coords[0])
+            .attr("cy", coords[1])
+            .attr("r", 5)
+            .attr("fill", "green");
+        })
+    })
+
+    item.addEventListener("mouseout", () => {
+
+    })*/
+
     svg.append("g")
         .selectAll("path")
         .data(Geo.features)
@@ -45,8 +75,5 @@ function drawMap(){
         .attr("d", d3.geoPath()
             .projection(projection)
         )
-        .attr("fill", function (d) {
-            return colorScale(0);
-        })
         .style("opacity", .7)
 }
