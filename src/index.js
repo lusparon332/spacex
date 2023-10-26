@@ -13,6 +13,8 @@ const projection = d3.geoMercator()
     .center([0,20])
     .translate([width / 2 - margin.left, height / 2]);
 const spaceX = new SpaceX();
+let launchpads = [];
+spaceX.launchpads().then(data => {launchpads = data});
 
 function setup(){
     spaceX.launches().then(data=>{
@@ -30,26 +32,24 @@ function renderLaunches(launches, container){
         list.appendChild(item);
 
         item.addEventListener("mouseover", () => {
-            spaceX.launchpad(launch.launchpad).then(data=>{
-                coords = projection([data.longitude, data.latitude])
-                svg.append("circle")
-                .attr("cx", coords[0])
-                .attr("cy", coords[1])
-                .attr("r", 5)
-                .attr("fill", "green");
+            launchpads.forEach(launchpad => {
+                if (launchpad.id === launch.launchpad) {
+                    coords = projection([launchpad.longitude, launchpad.latitude])
+                    circle = document.getElementById("flypoint");
+                    circle.setAttribute("cx", coords[0]);
+                    circle.setAttribute("cy", coords[1]);
+                }
             })
         })
 
-        item.addEventListener("mouseout", () => {
+        /*item.addEventListener("mouseover", () => {
             spaceX.launchpad(launch.launchpad).then(data=>{
                 coords = projection([data.longitude, data.latitude])
-                svg.append("circle")
-                .attr("cx", coords[0])
-                .attr("cy", coords[1])
-                .attr("r", 5)
-                .attr("fill", "red");
+                circle = document.getElementById("flypoint");
+                circle.setAttribute("cx", coords[0]);
+                circle.setAttribute("cy", coords[1]);
             })
-        })
+        })*/
     })
     container.replaceChildren(list);
 }
@@ -71,6 +71,13 @@ function drawMap(){
             .attr("fill", "red");
         }
     })
+
+    svg.append("circle")
+            .attr("cx", -1000)
+            .attr("cy", -1000)
+            .attr("r", 10)
+            .attr("fill", "green")
+            .attr("id", "flypoint");
 
     svg.append("g")
         .selectAll("path")
